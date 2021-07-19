@@ -1,6 +1,6 @@
 # Mirror
 The purpose of this app is to virtualize your wardrobe.
-A user can add pieces of clothing to app, where they can view them using filters.
+A user can add pieces of clothing to the app and view them using filters.
 A user can also edit and delete clothing if they wish.
 
 ## Screenshots
