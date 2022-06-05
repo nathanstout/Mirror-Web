@@ -4,7 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Type {
-    Tops ( 1, "Tops" ), Bottoms ( 2, "Bottoms" ), Shoes ( 3, "Shoes" ), NotSpecified ( 4, "Not Specified" ),;
+    Tops ( 1, "Tops" ),
+    Bottoms ( 2, "Bottoms" ),
+    Outerwear ( 3, "Outerwear" ),
+    Shoes ( 4, "Shoes" ),
+    NotSpecified ( 5, "Not Specified" ),;
 
     private int    code;
 

@@ -2,7 +2,6 @@ package com.example.demo.models;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,7 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 
 import com.example.demo.models.enums.Occasion;
 
@@ -23,11 +22,16 @@ public class Outfit extends DomainObject {
     @Enumerated ( EnumType.STRING )
     private Occasion occasion;
 
-    @OneToMany ( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+    @ManyToMany ( fetch = FetchType.EAGER )
     List<Clothing>   clothingList;
 
     public Outfit () {
 
+    }
+
+    public Outfit ( final Occasion occasion, final List<Clothing> clothingList ) {
+        this.occasion = occasion;
+        this.clothingList = clothingList;
     }
 
     @Override

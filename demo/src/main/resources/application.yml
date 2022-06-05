@@ -12,6 +12,10 @@ spring:
       ddl-auto: update
       dialect: org.hibernate.dialect.MySQL5Dialect
     show-sql: true
+  servlet:
+    multipart:
+      maxFileSize: 5MB
+      maxRequestSize: 5MB
 
 server:
   port: 8080

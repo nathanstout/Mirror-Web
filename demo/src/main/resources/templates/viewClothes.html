@@ -275,134 +275,52 @@
 		
 		
 		<div ng-app="myApp" ng-controller="viewClothesCtrl as ctrl">
-		<div class="d-flex" id="wrapper">
-		 	<div class="border-end bg-white" id="sidebar-wrapper">
-                <div class="sidebar-heading border-bottom bg-light">Browse by Type</div>
-                <div class="list-group list-group-flush">
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=NotSpecified">All Clothes</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Tops">Tops</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Bottoms">Bottoms</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Shoes">Shoes</a>
-                </div>
-            </div>
-            
-			<!-- <ul style="display:grid;"> -->
-			<div class="container-fluid">
-				<div class="row">
-					<div class="navbar">
-						<h1><span id="title"></span></h1>
-						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClothes">Add Clothes</button>
-						<!-- <a class="list-group-item list-group-item-light p-3" href="addClothes">Add Clothes</a> -->
-					</div>
-					
-					<!-- Modal -->
-					<div class="modal fade" id="addClothes" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-					  <div class="modal-dialog">
-					    <div class="modal-content">
-					      <div class="modal-header">
-					        <h5 class="modal-title" id="staticBackdropLabel">Add Clothing</h5>
-					        <button type="button" ng-click="resetAdd()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					      </div>
-					      <div class="modal-body">
-					        <form name="addClothingForm">
-								<div class="row mb-3">
-									<label for="type" class="col-sm-4 col-form-label">Type</label>
-									<div class="col-sm-8">
-										<select ng-model="clothing.type"
-												ng-options="type.id as type.name for type in types"
-												name="selectTypeDropdown" class="form-select"
-												>
-											<option value="">Select type</option>
-										</select>
-									</div>
-								</div>
-								
-								<div class="row mb-3">
-									<label for="primaryColor" class="col-sm-4 col-form-label">Primary color</label>
-									<div class="col-sm-8">
-										<select ng-model="clothing.primaryColor"
-												ng-options="color.id as color.name for color in colors"
-												name="selectPrimaryColorDropdown" class="form-select"
-												>
-											<option value="">Select primary color</option>
-										</select>
-									</div>
-								</div>
-								
-								<div class="row mb-3">
-									<label for="secondaryColor" class="col-sm-4 col-form-label">Secondary color</label>
-									<div class="col-sm-8">
-										<select ng-model="clothing.secondaryColor"
-												ng-options="color.id as color.name for color in colors"
-												name="selectSecondaryColorDropdown" class="form-select"
-												>
-											<option value="">Select secondary color</option>
-										</select>
-									</div>
-								</div>
-								
-								<div class="row mb-3">
-									<label for="photo" class="col-sm-4 col-form-label">Photo</label>
-									<div class="col-sm-8">
-										<input class="form-control" type="file" file-model="clothing.file" id="formFile"/>
-									</div>
-								</div>
-							</form>
-					      </div>
-					      <div class="modal-footer">
-					        <button type="button" ng-click="resetAdd()" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-					        <button type="button" ng-click="add()" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
-					      </div>
-					    </div>
-					  </div>
-					</div>
+			<div class="d-flex" id="wrapper">
+				<!-- Sidebar -->
+			 	<div class="border-end bg-white" id="sidebar-wrapper">
+	                <div class="sidebar-heading border-bottom bg-light">Browse by Type</div>
+	                <div class="list-group list-group-flush">
+	                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=NotSpecified">All Clothes</a>
+	                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Tops">Tops</a>
+	                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Bottoms">Bottoms</a>
+	                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Outerwear">Outerwear</a>
+	                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="viewClothes?type=Shoes">Shoes</a>
+	                </div>
 	            </div>
 	            
-	            <form name="filterClothingForm">
-		            <div class="row" id="filter-bar">
-							<div class="col-sm-3">
-								<select ng-model="filter.primaryColor"
-										ng-options="color.id as color.name for color in colors"
-										name="filterSecondaryColorDropdown" class="form-select"
-										>
-									<option value="">Select primary color</option>
-								</select>
-							</div>
-							<div class="col-sm-3">
-								<select ng-model="filter.secondaryColor"
-										ng-options="color.id as color.name for color in colors"
-										name="filterSecondaryColorDropdown" class="form-select"
-										>
-									<option value="">Select secondary color</option>
-								</select>
-							</div>
-						<div class="col-sm">
-							<button type="button" ng-click="filterClothes()" class="btn btn-primary" data-bs-dismiss="modal">Apply</button>
-							<button type="button" ng-click="resetFilter()" class="btn btn-secondary" data-bs-dismiss="modal">Reset</button>
+				<!-- <ul style="display:grid;"> -->
+				<div class="container-fluid">
+					
+					<!-- Add Clothes -->
+					<div class="row">
+					
+						<div class="navbar">
+							<h1><span id="title"></span></h1>
+							<!-- Button trigger modal -->
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClothes">Add Clothes</button>
+							<!-- <a class="list-group-item list-group-item-light p-3" href="addClothes">Add Clothes</a> -->
 						</div>
-					</div>
-				</form>
-	            
-	            <div class="row row-cols-4">
-	            	<div class="img-container" ng-repeat="c in clothes">
-						<div class="modal fade" id="editClothing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+						
+						<!-- Modal -->
+						<div class="modal fade" id="addClothes" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 						  <div class="modal-dialog">
 						    <div class="modal-content">
+						    
 						      <div class="modal-header">
-						        <h5 class="modal-title" id="staticBackdropLabel">Update Clothing</h5>
-						        <button type="button" ng-click="resetUpdate()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						        <h5 class="modal-title" id="staticBackdropLabel">Add Clothing</h5>
+						        <button type="button" ng-click="resetAdd()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						      </div>
+						      
 						      <div class="modal-body">
-						        <form name="updateClothingForm">
+						        <form name="addClothingForm">
 									<div class="row mb-3">
 										<label for="type" class="col-sm-4 col-form-label">Type</label>
 										<div class="col-sm-8">
-											<select ng-model="selectedClothing.type"
+											<select ng-model="clothing.type"
 													ng-options="type.id as type.name for type in types"
 													name="selectTypeDropdown" class="form-select"
-													disabled>
-												<option value="">Update type</option>
+													>
+												<option value="">Select type</option>
 											</select>
 										</div>
 									</div>
@@ -410,11 +328,11 @@
 									<div class="row mb-3">
 										<label for="primaryColor" class="col-sm-4 col-form-label">Primary color</label>
 										<div class="col-sm-8">
-											<select ng-model="selectedClothing.primaryColor"
+											<select ng-model="clothing.primaryColor"
 													ng-options="color.id as color.name for color in colors"
 													name="selectPrimaryColorDropdown" class="form-select"
 													>
-												<option value="">Update primary color</option>
+												<option value="">Select primary color</option>
 											</select>
 										</div>
 									</div>
@@ -422,11 +340,11 @@
 									<div class="row mb-3">
 										<label for="secondaryColor" class="col-sm-4 col-form-label">Secondary color</label>
 										<div class="col-sm-8">
-											<select ng-model="selectedClothing.secondaryColor"
+											<select ng-model="clothing.secondaryColor"
 													ng-options="color.id as color.name for color in colors"
 													name="selectSecondaryColorDropdown" class="form-select"
 													>
-												<option value="">Update secondary color</option>
+												<option value="">Select secondary color</option>
 											</select>
 										</div>
 									</div>
@@ -434,25 +352,118 @@
 									<div class="row mb-3">
 										<label for="photo" class="col-sm-4 col-form-label">Photo</label>
 										<div class="col-sm-8">
-											<input class="form-control" type="file" file-model="selectedClothing.file" id="formFile"/>
+											<input class="form-control" type="file" file-model="clothing.file" id="formFile"/>
 										</div>
 									</div>
 								</form>
 						      </div>
 						      <div class="modal-footer">
-						        <button type="button" ng-click="deleteClothing()" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
-						        <button type="button" ng-click="update()" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
+						        <button type="button" ng-click="resetAdd()" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						        <button type="button" ng-click="add()" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
 						      </div>
 						    </div>
 						  </div>
 						</div>
-		                <a data-bs-toggle="modal" href="#editClothing" role="button" ng-click="selectClothing(c.id)">
-		               		<img alt="{{c.id}}" ng-src='/demo/api/v1/photos/{{c.photo}}'/>
-		               	</a>
-	                </div>
-	            </div>
+		            </div>
+		            
+		            <!-- Filter clothes -->
+		            <form name="filterClothingForm">
+			            <div class="row" id="filter-bar">
+								<div class="col-sm-3">
+									<select ng-model="filter.primaryColor"
+											ng-options="color.id as color.name for color in colors"
+											name="filterSecondaryColorDropdown" class="form-select"
+											>
+										<option value="">Select primary color</option>
+									</select>
+								</div>
+								<div class="col-sm-3">
+									<select ng-model="filter.secondaryColor"
+											ng-options="color.id as color.name for color in colors"
+											name="filterSecondaryColorDropdown" class="form-select"
+											>
+										<option value="">Select secondary color</option>
+									</select>
+								</div>
+							<div class="col-sm">
+								<button type="button" ng-click="filterClothes()" class="btn btn-primary" data-bs-dismiss="modal">Apply</button>
+								<button type="button" ng-click="resetFilter()" class="btn btn-secondary" data-bs-dismiss="modal">Reset</button>
+							</div>
+						</div>
+					</form>
+		            
+		            <!-- Display clothes -->
+		            <div class="row row-cols-4">
+		            	<div class="img-container" ng-repeat="c in clothes">
+							
+							<!-- Modal -->
+							<div class="modal fade" id="editClothing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+							  <div class="modal-dialog">
+							    <div class="modal-content">
+							      <div class="modal-header">
+							        <h5 class="modal-title" id="staticBackdropLabel">Update Clothing</h5>
+							        <button type="button" ng-click="resetUpdate()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							      </div>
+							      <div class="modal-body">
+							        <form name="updateClothingForm">
+										<div class="row mb-3">
+											<label for="type" class="col-sm-4 col-form-label">Type</label>
+											<div class="col-sm-8">
+												<select ng-model="selectedClothing.type"
+														ng-options="type.id as type.name for type in types"
+														name="selectTypeDropdown" class="form-select"
+														>
+													<option value="">Update type</option>
+												</select>
+											</div>
+										</div>
+										
+										<div class="row mb-3">
+											<label for="primaryColor" class="col-sm-4 col-form-label">Primary color</label>
+											<div class="col-sm-8">
+												<select ng-model="selectedClothing.primaryColor"
+														ng-options="color.id as color.name for color in colors"
+														name="selectPrimaryColorDropdown" class="form-select"
+														>
+													<option value="">Update primary color</option>
+												</select>
+											</div>
+										</div>
+										
+										<div class="row mb-3">
+											<label for="secondaryColor" class="col-sm-4 col-form-label">Secondary color</label>
+											<div class="col-sm-8">
+												<select ng-model="selectedClothing.secondaryColor"
+														ng-options="color.id as color.name for color in colors"
+														name="selectSecondaryColorDropdown" class="form-select"
+														>
+													<option value="">Update secondary color</option>
+												</select>
+											</div>
+										</div>
+										
+										<div class="row mb-3">
+											<label for="photo" class="col-sm-4 col-form-label">Photo</label>
+											<div class="col-sm-8">
+												<input class="form-control" type="file" file-model="selectedClothing.file" id="formFile"/>
+											</div>
+										</div>
+									</form>
+							      </div>
+							      <div class="modal-footer">
+							        <button type="button" ng-click="deleteClothing()" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+							        <button type="button" ng-click="update()" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
+							      </div>
+							    </div>
+							  </div>
+							</div>
+			                <a data-bs-toggle="modal" href="#editClothing" role="button" ng-click="selectClothing(c.id)">
+			               		<img alt="{{c.id}}" ng-src='/demo/api/v1/photos/{{c.photo}}'/>
+			               	</a>
+		                </div>
+		            </div>
+		        </div>
 	        </div>
-        </div>
 	        <!-- </ul> -->
 		</div>
 	</div>

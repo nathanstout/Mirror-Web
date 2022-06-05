@@ -15,7 +15,9 @@ public enum Color {
     WHITE ( 8, "White" ),
     GRAY ( 9, "Gray" ),
     BLACK ( 10, "Black" ),
-    NONE ( 11, "None" ),;
+    NAVY ( 11, "Navy" ),
+    KHAKI ( 12, "Khaki" ),
+    NONE ( 13, "None" ),;
 
     private int    code;
 

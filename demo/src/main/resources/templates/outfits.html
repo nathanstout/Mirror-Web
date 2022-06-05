@@ -7,7 +7,8 @@
 
 	<div th:fragment="content">
 		<script th:inline="javascript">
-		var type = [[${occasion}]];
+		var occasion = [[${occasion}]];
+		console.log(occasion);
 		var app = angular.module('myApp', []);
 			app.directive('fileModel', ['$parse', function ($parse) {
 		    return {
@@ -26,23 +27,33 @@
 		     
 		}]);
 	    function loadHeader() {
-	    	var title = type;
+	    	var title = occasion;
 	        if (title === null || title == 'NotSpecified') {
 	        	title = 'All Outfits';
 	        }
 	        document.getElementById("title").innerHTML = title;
 	     }
 		app.controller('outfitsCtrl', function($scope, $http, $q) {
-			$http.get("/demo/api/v1/clothes/" + type)
+			console.log(occasion);
+			$http.get("/demo/api/v1/outfits/" + occasion)
 			.then(function (response) {
-				$scope.clothes = response.data;
+				$scope.outfits = response.data;
+				console.log("New outfits are:")
+				console.log($scope.outfits);
 			});
 	            
 			// Add Functionality
 			$scope.resetAdd = function() {
-				$scope.clothing = {};
-				if (undefined != $scope.addClothingForm) {
-					$scope.addClothingForm.$setPristine(); // reset Form
+				$scope.outfit = {
+						occasion : '',
+						clothingList : []
+				};
+				$scope.addedTops = [];
+				$scope.addedBottoms = [];
+				$scope.addedOuterwear = [];
+				$scope.addedShoes = [];
+				if (undefined != $scope.addOutfitForm) {
+					$scope.addOutfitForm.$setPristine(); // reset Form
 				}
 			}
 			
@@ -50,36 +61,44 @@
 				$scope.errorAdding = "";
 				$scope.successMessage = "";
 				
-				if (!$scope.clothing.type) {
-					$scope.errorAdding += "Please select a type\n";
+ 				if ($scope.addedTops.length === 0) {
+					$scope.errorAdding += "Please select a top\n";
 				}
 				
-				if (!$scope.clothing.primaryColor) {
-					$scope.errorAdding += "Please select a primary color\n";
+				if ($scope.addedBottoms.length === 0) {
+					$scope.errorAdding += "Please select a bottoms\n";
 				}
 				
-				if (!$scope.clothing.secondaryColor) {
-					$scope.errorAdding += "Please select a secondary color\n";
+				if ($scope.addedShoes.length === 0) {
+					$scope.errorAdding += "Please select a shoes\n";
 				}
 				
-				if (!$scope.clothing.file) {
-					$scope.errorAdding += "Please select a photo\n";
+				if ($scope.outfit.occasion === '') {
+					$scope.errorAdding += "Please select an occasion\n";
 				}
+				
+				console.log($scope.errorAdding);
 				
 				if ($scope.errorAdding == "") {
-					$scope.addClothing();
+					$scope.addOutfit();
 					$scope.resetAdd();
 				}
 
 			}	
 			
-	        $scope.addClothing = function () {
-	            var data = new FormData();
+	        $scope.addOutfit = function () {
+/* 	            var data = new FormData();
 	            
-	            data.append("primaryColor", $scope.clothing.primaryColor);
-	            data.append("secondaryColor", $scope.clothing.secondaryColor);
-	            data.append("type", $scope.clothing.type);
-	            data.append("photo", $scope.clothing.file);
+	            // Temporarily fixed 
+	            var clothingList = [];
+	            clothingList.push($scope.outfit.top);
+	            clothingList.push($scope.outfit.bottoms);
+	            if (!$scope.outfit.outerwear) clothingList.push($scope.outfit.outerwear);
+	            clothingList.push($scope.outfit.shoes);
+	            
+	            data.append("clothingList", clothingList);
+	            data.append("occasion", $scope.occasion); */
+	            $scope.outfit.clothingList = $scope.addedTops.concat($scope.addedBottoms).concat($scope.addedOuterwear).concat($scope.addedShoes);
 	     
 	            var config = {
 	                transformRequest: angular.identity,
@@ -88,26 +107,200 @@
 	                    'Content-Type': undefined
 	                }
 	            }
-				console.log($scope.clothing);
-	            $http.post("/demo/api/v1/clothes", data, config).then(
+				//console.log(data);
+	            $http.post("/demo/api/v1/outfits", $scope.outfit).then(
 	              function (response) {
 	                $scope.errorAdding = "";
-	                $scope.successMessage = "Clothing successfully added";
-					$http.get("/demo/api/v1/clothes/" + type)
+	                $scope.successMessage = "Outfit successfully added";
+					$http.get("/demo/api/v1/outfits/" + occasion)
 					.then(function (response) {
-						$scope.clothes = response.data;
+						$scope.outfits = response.data;
 					});
 	              }, function (rejection) {
 	                $scope.errorAdding = "Clothing could not be added";
 	                $scope.successMessage = "";
-					$http.get("/demo/api/v1/clothes/" + type)
+					$http.get("/demo/api/v1/outfits/" + occasion)
 					.then(function (response) {
-						$scope.clothes = response.data;
+						$scope.outfits = response.data;
 					});
 	              });
 	        }
 	        
-	        // Update Functionality
+	        // Tops
+	        // Get only tops for adding to outfit
+	        $http.get("/demo/api/v1/clothes/Tops")
+            .then(function (response) {
+                $scope.tops = response.data;
+                console.log($scope.tops);
+            });
+	        
+	        // Filter Top Functionality
+	        $scope.resetTopsFilter = function() {
+	        	$scope.topFilter = {};
+				if (undefined != $scope.filterTopsForm) {
+					$scope.filterTopsForm.$setPristine(); // reset Form
+				}
+				$http.get("/demo/api/v1/clothes/Tops")
+				.then(function (response) {
+					$scope.tops = response.data;
+				});
+	        }
+	        
+	        $scope.filterTops = function() {
+	        	if (undefined == $scope.topFilter.primaryColor) {
+	        		$scope.topFilter.primaryColor = null;
+				}
+	        	if (undefined == $scope.topFilter.secondaryColor) {
+	        		$scope.topFilter.secondaryColor = null;
+				}
+	        	$http.get("/demo/api/v1/filter/Tops/" + $scope.topFilter.primaryColor + "/" + $scope.topFilter.secondaryColor)
+				.then(function (response) {
+					$scope.tops = response.data;
+					//console.log($scope.clothes);
+				});
+	        }
+	        
+	        // Selecting Top
+	        $scope.selectTop = function (top) {
+	        	$scope.addedTops.push(top);
+	        	console.log($scope.outfit);
+	        }
+	        
+	        // Clear Top selection
+	        $scope.clearTop = function () {
+	        	$scope.addedTops = [];
+	        }
+	        
+	        // Bottoms
+	        // Get only bottoms for adding to outfit
+	        $http.get("/demo/api/v1/clothes/Bottoms")
+            .then(function (response) {
+                $scope.bottoms = response.data;
+            });
+	        
+	        // Filter Bottoms Functionality
+	        $scope.resetBottomsFilter = function() {
+	        	$scope.bottomsFilter = {};
+				if (undefined != $scope.filterBottomsForm) {
+					$scope.filterBottomsForm.$setPristine(); // reset Form
+				}
+				$http.get("/demo/api/v1/clothes/Bottoms")
+				.then(function (response) {
+					$scope.bottoms = response.data;
+				});
+	        }
+	        
+	        $scope.filterBottoms = function() {
+	        	if (undefined == $scope.bottomsFilter.primaryColor) {
+	        		$scope.bottomsFilter.primaryColor = null;
+				}
+	        	if (undefined == $scope.topFilter.secondaryColor) {
+	        		$scope.bottomsFilter.secondaryColor = null;
+				}
+	        	$http.get("/demo/api/v1/filter/Bottoms/" + $scope.bottomsFilter.primaryColor + "/" + $scope.bottomsFilter.secondaryColor)
+				.then(function (response) {
+					$scope.bottoms = response.data;
+				});
+	        }
+	        
+	        // Selecting Bottoms
+	        $scope.selectBottoms = function (bottoms) {
+	        	$scope.addedBottoms.push(bottoms);
+	        	console.log($scope.outfit);
+	        }
+	        
+	        // Clear Bottoms selection
+	        $scope.clearBottoms = function () {
+	        	$scope.addedBottoms = [];
+	        }
+	        
+	        // Outerwear
+	        // Get only outerwear for adding to outfit
+	        $http.get("/demo/api/v1/clothes/Outerwear")
+            .then(function (response) {
+                $scope.outerwear = response.data;
+            });
+	        
+	        // Filter outerwear functionality
+	        $scope.resetOuterwearFilter = function() {
+	        	$scope.outerwearFilter = {};
+				if (undefined != $scope.filterOuterwearForm) {
+					$scope.filterOuterwearForm.$setPristine(); // reset Form
+				}
+				$http.get("/demo/api/v1/clothes/Outerwear")
+				.then(function (response) {
+					$scope.outerwear = response.data;
+				});
+	        }
+	        
+	        $scope.filterOuterwear = function() {
+	        	if (undefined == $scope.outerwearFilter.primaryColor) {
+	        		$scope.outerwearFilter.primaryColor = null;
+				}
+	        	if (undefined == $scope.outerwearFilter.secondaryColor) {
+	        		$scope.outerwearFilter.secondaryColor = null;
+				}
+	        	$http.get("/demo/api/v1/filter/Outerwear/" + $scope.outerwearFilter.primaryColor + "/" + $scope.outerwearFilter.secondaryColor)
+				.then(function (response) {
+					$scope.outerwear = response.data;
+				});
+	        }
+	        
+	        // Selecting outerwear
+	        $scope.selectOuterwear = function (outerwear) {
+	        	$scope.addedOuterwear.push(outerwear);
+	        	console.log($scope.outfit);
+	        }
+	        
+	        // Clear outerwear selection
+	        $scope.clearOuterwear = function () {
+	        	$scope.addedOuterwear = [];
+	        }
+	        
+	        // Shoes
+	        // Get only shoes for adding to outfit
+	        $http.get("/demo/api/v1/clothes/Shoes")
+            .then(function (response) {
+                $scope.shoes = response.data;
+            });
+	        
+	        // Filter shoes functionality
+	        $scope.resetShoesFilter = function() {
+	        	$scope.shoesFilter = {};
+				if (undefined != $scope.filterShoesForm) {
+					$scope.filterShoesForm.$setPristine(); // reset Form
+				}
+				$http.get("/demo/api/v1/clothes/Shoes")
+				.then(function (response) {
+					$scope.shoes = response.data;
+				});
+	        }
+	        
+	        $scope.filterShoes = function() {
+	        	if (undefined == $scope.shoesFilter.primaryColor) {
+	        		$scope.shoesFilter.primaryColor = null;
+				}
+	        	if (undefined == $scope.shoesFilter.secondaryColor) {
+	        		$scope.shoesFilter.secondaryColor = null;
+				}
+	        	$http.get("/demo/api/v1/filter/Shoes/" + $scope.shoesFilter.primaryColor + "/" + $scope.shoesFilter.secondaryColor)
+				.then(function (response) {
+					$scope.shoes = response.data;
+				});
+	        }
+	        
+	        // Selecting shoes
+	        $scope.selectShoes = function (shoes) {
+	        	$scope.addedShoes.push(shoes);
+	        	console.log($scope.outfit);
+	        }
+	        
+	        // Clear shoes selection
+	        $scope.clearShoes = function () {
+	        	$scope.outfit.shoes = [];
+	        }
+	        
+/* 	        // Update Functionality
 	        $scope.selectClothing = function (id) {
 	        	$http.get("/demo/api/v1/clothing/" + id)
 				.then(function (response) {
@@ -243,29 +436,35 @@
 					$scope.clothes = response.data;
 					//console.log($scope.clothes);
 				});
-	        }
+	        } */
 	        
 	        
 	        $http.get("/demo/api/v1/type")
             .then(function (response) {
                 $scope.types = response.data;
-                //console.log($scope.types);
+                console.log($scope.types);
             });
 	        
 	        $http.get("/demo/api/v1/color")
             .then(function (response) {
                 $scope.colors = response.data;
-                //console.log($scope.colors);
+            });
+	        
+	        $http.get("/demo/api/v1/occasion")
+            .then(function (response) {
+                $scope.occasions = response.data;
+                console.log($scope.occasions);
             });
 	        
 	        $scope.resetAdd();
-	        $scope.resetUpdate();
-	        $scope.resetFilter();
+/* 	        $scope.resetUpdate();
+	        $scope.resetFilter(); */
 
 		});
 		</script>
-		<div ng-app="myApp" ng-controller="outfits as ctrl">
+		<div ng-app="myApp" ng-controller="outfitsCtrl as ctrl">
 			<div class="d-flex" id="wrapper">
+			
 			 	<div class="border-end bg-white" id="sidebar-wrapper">
 	                <div class="sidebar-heading border-bottom bg-light">Browse by Occasion</div>
 	                <div class="list-group list-group-flush">
@@ -278,120 +477,256 @@
 	            
 				<!-- <ul style="display:grid;"> -->
 				<div class="container-fluid">
+					
+					<!--  Add Outfit -->
 					<div class="row">
+					
 						<div class="navbar">
 							<h1><span id="title"></span></h1>
 							<!-- Button trigger modal -->
-							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClothes">Add Clothes</button>
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOutfit">Add Outfit</button>
 							<!-- <a class="list-group-item list-group-item-light p-3" href="addClothes">Add Clothes</a> -->
 						</div>
 						
+						
 						<!-- Modal -->
-						<div class="modal fade" id="addClothes" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-						  <div class="modal-dialog">
+						<div class="modal fade" id="addOutfit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+						  <div class="modal-dialog modal-lg">
 						    <div class="modal-content">
+						      
 						      <div class="modal-header">
-						        <h5 class="modal-title" id="staticBackdropLabel">Add Clothing</h5>
+						        <h5 class="modal-title" id="staticBackdropLabel">Add Outfit</h5>
 						        <button type="button" ng-click="resetAdd()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						      </div>
+						      
+						      <!-- Big modal -->
 						      <div class="modal-body">
-						        <form name="addClothingForm">
+						      	
+						      	<!-- Form containing accordian and buttons -->
+								<form name="addOutfitForm">
+								
 									<div class="row mb-3">
-										<label for="type" class="col-sm-4 col-form-label">Type</label>
+										<label for="occasion" class="col-sm-4 col-form-label"><h6>Occasion</h6></label>
 										<div class="col-sm-8">
-											<select ng-model="clothing.type"
-													ng-options="type.id as type.name for type in types"
-													name="selectTypeDropdown" class="form-select"
-													>
-												<option value="">Select type</option>
-											</select>
-										</div>
-									</div>
-									
-									<div class="row mb-3">
-										<label for="primaryColor" class="col-sm-4 col-form-label">Primary color</label>
-										<div class="col-sm-8">
-											<select ng-model="clothing.primaryColor"
-													ng-options="color.id as color.name for color in colors"
-													name="selectPrimaryColorDropdown" class="form-select"
-													>
-												<option value="">Select primary color</option>
-											</select>
-										</div>
-									</div>
-									
-									<div class="row mb-3">
-										<label for="secondaryColor" class="col-sm-4 col-form-label">Secondary color</label>
-										<div class="col-sm-8">
-											<select ng-model="clothing.secondaryColor"
-													ng-options="color.id as color.name for color in colors"
+											<select ng-model="outfit.occasion"
+													ng-options="occasion.id as occasion.name for occasion in occasions"
 													name="selectSecondaryColorDropdown" class="form-select"
 													>
-												<option value="">Select secondary color</option>
+												<option value="">Select occasion</option>
 											</select>
 										</div>
 									</div>
 									
-									<div class="row mb-3">
-										<label for="photo" class="col-sm-4 col-form-label">Photo</label>
-										<div class="col-sm-8">
-											<input class="form-control" type="file" file-model="clothing.file" id="formFile"/>
-										</div>
+									<!-- Accordion -->
+									<div class="accordion" id="accordionExample">
+									  <div class="accordion-item">
+									    <h2 class="accordion-header" id="headingOne">
+									      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+									        Add Top
+									      </button>
+									    </h2>
+									    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+									      <div class="accordion-body">
+		 						            <div class="row" id="filter-bar" name="filterTopsForm">
+												<div class="col-sm-3">
+													<select ng-model="topFilter.primaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="topFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select primary color</option>
+													</select>
+												</div>
+												<div class="col-sm-3">
+													<select ng-model="topFilter.secondaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="topFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select secondary color</option>
+													</select>
+												</div>
+												<div class="col-sm">
+													<button type="button" ng-click="filterTops()" class="btn btn-primary">Apply</button>
+													<button type="button" ng-click="resetTopsFilter()" class="btn btn-secondary">Reset</button>
+													<button type="button" ng-click="clearTop()" class="btn btn-danger">Clear Selection</button>
+												</div>
+											</div>
+											
+											<div class="row mb-3 row-cols-4">
+								            	<div class="img-container" ng-repeat="t in tops">
+									                <a role="button" ng-click="selectTop(t)">
+									               		<img alt="{{t.id}}" ng-src='/demo/api/v1/photos/{{t.photo}}'/>
+									               	</a>
+								                </div>
+							            	</div>
+									      </div>
+									    </div>
+									  </div>
+									  <div class="accordion-item">
+									    <h2 class="accordion-header" id="headingTwo">
+									      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+									        Add Bottoms
+									      </button>
+									    </h2>
+									    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+									      <div class="accordion-body">
+		 						            <div class="row" id="filter-bar" name="filterBottomsForm">
+												<div class="col-sm-3">
+													<select ng-model="bottomsFilter.primaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="bottomsFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select primary color</option>
+													</select>
+												</div>
+												<div class="col-sm-3">
+													<select ng-model="bottomsFilter.secondaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="bottomsFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select secondary color</option>
+													</select>
+												</div>
+												<div class="col-sm">
+													<button type="button" ng-click="filterBottoms()" class="btn btn-primary">Apply</button>
+													<button type="button" ng-click="resetBottomsFilter()" class="btn btn-secondary">Reset</button>
+													<button type="button" ng-click="clearBottoms()" class="btn btn-danger">Clear Selection</button>
+												</div>
+											</div>
+											
+											<div class="row mb-3 row-cols-4">
+								            	<div class="img-container" ng-repeat="b in bottoms">
+									                <a role="button" ng-click="selectBottoms(b)">
+									               		<img alt="{{b.id}}" ng-src='/demo/api/v1/photos/{{b.photo}}'/>
+									               	</a>
+								                </div>
+							            	</div>
+							            	
+									      </div>
+									    </div>
+									  </div>
+									  <div class="accordion-item">
+									    <h2 class="accordion-header" id="headingThree">
+									      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+									        Add Outerwear
+									      </button>
+									    </h2>
+									    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+									      <div class="accordion-body">
+		 						            <div class="row" id="filter-bar" name="filterOuterwearForm">
+												<div class="col-sm-3">
+													<select ng-model="outerwearFilter.primaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="outerwearFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select primary color</option>
+													</select>
+												</div>
+												<div class="col-sm-3">
+													<select ng-model="outerwearFilter.secondaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="outerwearFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select secondary color</option>
+													</select>
+												</div>
+												<div class="col-sm">
+													<button type="button" ng-click="filterOuterwear()" class="btn btn-primary">Apply</button>
+													<button type="button" ng-click="resetOuterwearFilter()" class="btn btn-secondary">Reset</button>
+													<button type="button" ng-click="clearOuterwear()" class="btn btn-danger">Clear Selection</button>
+												</div>
+											</div>
+											
+											<div class="row mb-3 row-cols-4">
+								            	<div class="img-container" ng-repeat="o in outerwear">
+									                <a role="button" ng-click="selectOuterwear(o)">
+									               		<img alt="{{o.id}}" ng-src='/demo/api/v1/photos/{{o.photo}}'/>
+									               	</a>
+								                </div>
+							            	</div>
+									      </div>
+									    </div>
+									  </div>
+									  <div class="accordion-item">
+									    <h2 class="accordion-header" id="headingFour">
+									      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+									        Add Shoes
+									      </button>
+									    </h2>
+									    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+									      <div class="accordion-body">
+		 						            <div class="row" id="filter-bar" name="filterShoesForm">
+												<div class="col-sm-3">
+													<select ng-model="shoesFilter.primaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="shoesFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select primary color</option>
+													</select>
+												</div>
+												<div class="col-sm-3">
+													<select ng-model="shoesFilter.secondaryColor"
+															ng-options="color.id as color.name for color in colors"
+															name="shoesFilterSecondaryColorDropdown" class="form-select"
+															>
+														<option value="">Select secondary color</option>
+													</select>
+												</div>
+												<div class="col-sm">
+													<button type="button" ng-click="filterShoes()" class="btn btn-primary">Apply</button>
+													<button type="button" ng-click="resetShoesFilter()" class="btn btn-secondary">Reset</button>
+													<button type="button" ng-click="clearShoes()" class="btn btn-danger">Clear Selection</button>
+												</div>
+											</div>
+											
+											<div class="row mb-3 row-cols-4">
+								            	<div class="img-container" ng-repeat="s in shoes">
+									                <a role="button" ng-click="selectShoes(s)">
+									               		<img alt="{{s.id}}" ng-src='/demo/api/v1/photos/{{s.photo}}'/>
+									               	</a>
+								                </div>
+							            	</div>
+									      </div>
+									    </div>
+									  </div>
 									</div>
+									<!-- Accordion -->
 								</form>
+
 						      </div>
+						      
 						      <div class="modal-footer">
 						        <button type="button" ng-click="resetAdd()" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 						        <button type="button" ng-click="add()" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
 						      </div>
+						      
 						    </div>
 						  </div>
 						</div>
 		            </div>
 		            
-		            <form name="filterClothingForm">
-			            <div class="row" id="filter-bar">
-								<div class="col-sm-3">
-									<select ng-model="filter.primaryColor"
-											ng-options="color.id as color.name for color in colors"
-											name="filterSecondaryColorDropdown" class="form-select"
-											>
-										<option value="">Select primary color</option>
-									</select>
-								</div>
-								<div class="col-sm-3">
-									<select ng-model="filter.secondaryColor"
-											ng-options="color.id as color.name for color in colors"
-											name="filterSecondaryColorDropdown" class="form-select"
-											>
-										<option value="">Select secondary color</option>
-									</select>
-								</div>
-							<div class="col-sm">
-								<button type="button" ng-click="filterClothes()" class="btn btn-primary" data-bs-dismiss="modal">Apply</button>
-								<button type="button" ng-click="resetFilter()" class="btn btn-secondary" data-bs-dismiss="modal">Reset</button>
-							</div>
-						</div>
-					</form>
-		            
-		            <div class="row row-cols-4">
-		            	<div class="img-container" ng-repeat="c in clothes">
+		            <!-- Update outfit / Display -->
+		            <div class="row row-cols-2">
+		            	<div class="img-container" ng-repeat="o in outfits">
+		            		
+		            		<!-- Modal -->
 							<div class="modal fade" id="editClothing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 							  <div class="modal-dialog">
 							    <div class="modal-content">
+							    
 							      <div class="modal-header">
 							        <h5 class="modal-title" id="staticBackdropLabel">Update Clothing</h5>
 							        <button type="button" ng-click="resetUpdate()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							      </div>
+							      
 							      <div class="modal-body">
 							        <form name="updateClothingForm">
 										<div class="row mb-3">
 											<label for="type" class="col-sm-4 col-form-label">Type</label>
 											<div class="col-sm-8">
 												<select ng-model="selectedClothing.type"
-														ng-options="type.id as type.name for type in types"
+														ng-options="type.id as type.name for type in $scope.types"
 														name="selectTypeDropdown" class="form-select"
-														disabled>
+														>
 													<option value="">Update type</option>
 												</select>
 											</div>
@@ -429,16 +764,26 @@
 										</div>
 									</form>
 							      </div>
+							      
 							      <div class="modal-footer">
 							        <button type="button" ng-click="deleteClothing()" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
 							        <button type="button" ng-click="update()" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
 							      </div>
+							      
 							    </div>
 							  </div>
 							</div>
-			                <a data-bs-toggle="modal" href="#editClothing" role="button" ng-click="selectClothing(c.id)">
-			               		<img alt="{{c.id}}" ng-src='/demo/api/v1/photos/{{c.photo}}'/>
+							<!-- Modal -->
+							
+			                <a class="list-group-item" data-bs-toggle="modal" href="#editClothing" role="button" ng-click="selectClothing(c.id)">
+			               		<div class="row row-cols-4">
+			               			<div class="img-container" ng-repeat="c in o.clothingList">
+			               				<img alt="{{c.id}}" ng-src='/demo/api/v1/photos/{{c.photo}}'/>
+			               			</div>
+			               		</div>
+			               		<!-- <img alt="{{c.id}}" ng-src='/demo/api/v1/photos/{{c.photo}}'/> -->
 			               	</a>
+			               	
 		                </div>
 		            </div>
 		        </div>

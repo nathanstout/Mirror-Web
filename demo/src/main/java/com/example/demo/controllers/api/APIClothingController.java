@@ -182,7 +182,7 @@ public class APIClothingController extends APIController {
 
     @SuppressWarnings ( { "rawtypes", "unchecked" } )
     @PutMapping ( BASE_PATH + "/clothes" )
-    public ResponseEntity editRecipe ( @ModelAttribute final ClothingForm clothingForm ) {
+    public ResponseEntity editClothing ( @ModelAttribute final ClothingForm clothingForm ) {
         System.out.println( clothingForm.toString() );
         final Clothing updated = new Clothing( clothingForm );
         final Clothing original = (Clothing) service.findById( clothingForm.getId() );
@@ -218,7 +218,7 @@ public class APIClothingController extends APIController {
 
     @SuppressWarnings ( { "rawtypes", "unchecked" } )
     @DeleteMapping ( BASE_PATH + "/clothes/{id}" )
-    public ResponseEntity deleteRecipe ( @PathVariable final Long id ) {
+    public ResponseEntity deleteClothing ( @PathVariable final Long id ) {
         final Clothing clothing = (Clothing) service.findById( id );
         if ( null == clothing ) {
             return new ResponseEntity( errorResponse( "No clothing found" ), HttpStatus.NOT_FOUND );
